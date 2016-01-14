@@ -42,3 +42,6 @@ Suggests:
 License: GPL (>= 2)
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
+RemoteType: local
+RemoteUrl: /home/rmflight/Projects/work/devtools
+RemoteSha: 29f9cbbedf
