@@ -86,7 +86,10 @@ install <- function(pkg = ".", reload = TRUE, quick = FALSE, local = TRUE,
 
   # add the SHA to the DESCRIPTION file before building and installing
   if (is.function(add_sha)) {
-    add_sha(pkg$path, level = getOption("devtools.git.wd.clean"))
+    add_sha <- add_sha(pkg$path)
+  }
+
+  if (add_sha) {
     add_metadata(pkg$path, remote_metadata(pkg))
   }
 
