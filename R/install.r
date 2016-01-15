@@ -58,7 +58,7 @@ install <- function(pkg = ".", reload = TRUE, quick = FALSE, local = TRUE,
                     build_vignettes = FALSE,
                     keep_source = getOption("keep.source.pkgs"),
                     threads = getOption("Ncpus", 1),
-                    metadata = remote_metadata.local_remote(as.package(pkg)),
+                    metadata = remote_metadata(as.package(pkg)),
                     ...) {
 
   pkg <- as.package(pkg)
@@ -105,7 +105,9 @@ install <- function(pkg = ".", reload = TRUE, quick = FALSE, local = TRUE,
   R(paste("CMD INSTALL ", shQuote(built_path), " ", opts, sep = ""),
     quiet = quiet)
 
-  add_metadata(base::system.file(package = pkg$package), metadata)
+  if (length(metadata)) {
+    add_metadata(base::system.file(package = pkg$package), metadata)
+  }
 
   if (reload) {
     reload(pkg, quiet = quiet)
