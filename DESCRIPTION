@@ -42,6 +42,3 @@ Suggests:
 License: GPL (>= 2)
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
-RemoteType: local
-RemoteUrl: /Users/jhester/Dropbox/projects/devtools
-RemoteSha: 7e6a29023f
