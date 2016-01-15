@@ -137,30 +137,20 @@ test_that("git_wd_clean works properly", {
   test_pkg <- create_in_temp("testGitWD")
 
   # test that nothing is returned if it is not a git repo
-  expect_silent(git_wd_clean(test_pkg))
+  expect_equal(FALSE, git_wd_clean(test_pkg))
 
   # add git to it
   mock_use_github(test_pkg)
 
   # initial creation should have no uncommitted files
-  expect_silent(git_wd_clean(test_pkg))
-  expect_silent(git_wd_clean(test_pkg, level = "warn"))
-  expect_silent(git_wd_clean(test_pkg, level = "die"))
+  expect_equal(TRUE, git_wd_clean(test_pkg))
 
   # make a change and don't commit it
   r <- git2r::repository(test_pkg, discover = TRUE)
   cat("just some test files", file = file.path(test_pkg, "test.txt"))
 
-  expect_silent(git_wd_clean(test_pkg, level = "none"))
-  expect_warning(git_wd_clean(test_pkg))
-  expect_error(git_wd_clean(test_pkg, level = "die"))
-
-  options(devtools.git.wd.clean = "none")
-  expect_silent(git_wd_clean(test_pkg))
-  options(devtools.git.wd.clean = "warn")
-  expect_warning(git_wd_clean(test_pkg))
-  options(devtools.git.wd.clean = "die")
-  expect_error(git_wd_clean(test_pkg))
+  # we expect to return this as FALSE then
+  expect_equal(FALSE, git_wd_clean(test_pkg))
 
   erase(test_pkg)
 })
@@ -187,7 +177,6 @@ test_that("add_sha options work for git directories", {
   pkg_info <- session_info()$packages
   expect_equal(pkg_info[pkg_info[, "package"] %in% "testAddSHAInstall", "source"], "local")
 
-  # commit first so that the test passes
   r <- git2r::repository(test_pkg)
 
   # then use add_sha
@@ -197,6 +186,15 @@ test_that("add_sha options work for git directories", {
   pkg_source <- pkg_info[pkg_info[, "package"] %in% "testAddSHAInstall", "source"]
   pkg_sha <- substring(git2r::commits(r)[[1]]@sha, 1, 7)
   expect_match(pkg_source, pkg_sha)
+
+  # test what happens with a "dirty" directory
+  # with normal git_wd_clean it should not add anything
+  cat("just some test files", file = file.path(test_pkg, "test.txt"))
+  install(test_pkg, quiet = TRUE)
+  library("testAddSHAInstall")
+  pkg_info <- session_info()$packages
+  pkg_source <- pkg_info[pkg_info[, "package"] %in% "testAddSHAInstall", "source"]
+  pkg_sha <- substring(git2r::commits(r)[[1]]@sha, 1, 7)
 
   erase(test_pkg)
 
