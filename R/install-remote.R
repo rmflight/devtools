@@ -31,12 +31,21 @@ install_remotes <- function(remotes, ...) {
 
 # Add metadata
 add_metadata <- function(pkg_path, meta) {
+  path <- file.path(pkg_path, "Meta", "package.rds")
+  if (file.exists(path)) {
+    pkg_desc <- readRDS(path)
+    desc <- as.list(pkg_desc$DESCRIPTION)
+    desc <- modifyList(desc, meta)
+    pkg_desc$DESCRIPTION <- setNames(as.character(desc), names(desc))
+    saveRDS(pkg_desc, path)
+  }
+
   path <- file.path(pkg_path, "DESCRIPTION")
-  desc <- read_dcf(path)
-
-  desc <- modifyList(desc, meta)
-
-  write_dcf(path, desc)
+  if (file.exists(path)) {
+    desc <- read_dcf(path)
+    desc <- modifyList(desc, meta)
+    write_dcf(path, desc)
+  }
 }
 
 # Modify the MD5 file - remove the line for DESCRIPTION
@@ -62,7 +71,7 @@ remote_metadata <- function(x, bundle = NULL, source = NULL) UseMethod("remote_m
 #' @export
 remote_metadata.package <- function(x, bundle = NULL, source = NULL) {
   list(
-    RemoteType = "package",
+    RemoteType = "local",
     RemoteUrl = x$path,
     RemoteSha = if (git_committed(x$path)) git_sha1(path = x$path)
   )
